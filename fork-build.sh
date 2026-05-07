@@ -11,9 +11,10 @@
 #   GHCR_REPO=ghcr.io/<owner>/cloudfront-fork-controller ./fork-build.sh
 #
 # Environment variables:
-#   GHCR_REPO   — required, e.g. ghcr.io/msessa/cloudfront-fork-controller
-#   TAG         — optional, defaults to "latest"
-#   PLATFORM    — optional, defaults to "linux/arm64" (set to "linux/amd64,linux/arm64" for multi-arch)
+#   GHCR_REPO       — required, e.g. ghcr.io/msessa/cloudfront-fork-controller
+#   IMAGE_TAG       — optional, image tag (defaults to "latest")
+#   CHART_VERSION   — optional, helm chart version (defaults to version in Chart.yaml)
+#   PLATFORM        — optional, defaults to "linux/arm64" (set to "linux/amd64,linux/arm64" for multi-arch)
 
 set -euo pipefail
 
@@ -21,10 +22,10 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_ROOT"
 
 : "${GHCR_REPO:?Set GHCR_REPO to your GHCR image path, e.g. ghcr.io/youruser/cloudfront-fork-controller}"
-TAG="${TAG:-latest}"
+IMAGE_TAG="${IMAGE_TAG:-latest}"
 PLATFORM="${PLATFORM:-linux/arm64}"
 
-IMAGE="${GHCR_REPO}:${TAG}"
+IMAGE="${GHCR_REPO}:${IMAGE_TAG}"
 CHART_DIR="helm"
 
 echo "==> Building controller image: ${IMAGE}"
@@ -32,7 +33,7 @@ echo "    Platform: ${PLATFORM}"
 
 docker buildx build \
   --platform "${PLATFORM}" \
-  --build-arg VERSION="${TAG}" \
+  --build-arg VERSION="${IMAGE_TAG}" \
   -t "${IMAGE}" \
   --push \
   .
@@ -41,7 +42,7 @@ echo "  [done] Image pushed: ${IMAGE}"
 echo ""
 
 # Build and push Helm chart as OCI artifact
-CHART_VERSION=$(grep '^version:' "${CHART_DIR}/Chart.yaml" | awk '{print $2}')
+CHART_VERSION="${CHART_VERSION:-$(grep '^version:' "${CHART_DIR}/Chart.yaml" | awk '{print $2}')}"
 CHART_NAME=$(grep '^name:' "${CHART_DIR}/Chart.yaml" | awk '{print $2}')
 
 # Derive OCI registry path from GHCR_REPO (strip the image name, use charts subpath)
@@ -56,10 +57,10 @@ sed -i '' "s|image:.*|image:|" "${CHART_DIR}/values.yaml" 2>/dev/null || true
 cat > /tmp/fork-values-patch.yaml <<EOF
 image:
   repository: ${GHCR_REPO}
-  tag: ${TAG}
+  tag: ${IMAGE_TAG}
 EOF
 
-helm package "${CHART_DIR}" --version "${CHART_VERSION}" --app-version "${TAG}" -d /tmp/fork-chart/
+helm package "${CHART_DIR}" --version "${CHART_VERSION}" --app-version "${IMAGE_TAG}" -d /tmp/fork-chart/
 
 echo "==> Pushing Helm chart OCI: oci://${GHCR_CHARTS}/${CHART_NAME}:${CHART_VERSION}"
 
@@ -69,6 +70,6 @@ echo "  [done] Chart pushed: oci://${GHCR_CHARTS}/${CHART_NAME}:${CHART_VERSION}
 echo ""
 echo "==> Install with:"
 echo "    helm install cloudfront-fork oci://${GHCR_CHARTS}/${CHART_NAME} --version ${CHART_VERSION} \\"
-echo "      --set image.repository=${GHCR_REPO} --set image.tag=${TAG}"
+echo "      --set image.repository=${GHCR_REPO} --set image.tag=${IMAGE_TAG}"
 
 rm -rf /tmp/fork-chart /tmp/fork-values-patch.yaml
