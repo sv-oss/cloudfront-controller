@@ -47,8 +47,8 @@ var (
 	_ = svcapitypes.OriginAccessControl{}
 )
 
-// +kubebuilder:rbac:groups=cloudfront.services.k8s.aws,resources=originaccesscontrols,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=cloudfront.services.k8s.aws,resources=originaccesscontrols/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cloudfront.fork.services.k8s.aws,resources=originaccesscontrols,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cloudfront.fork.services.k8s.aws,resources=originaccesscontrols/status,verbs=get;update;patch
 
 var lateInitializeFieldNames = []string{}
 

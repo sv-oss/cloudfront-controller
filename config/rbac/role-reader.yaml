@@ -7,7 +7,7 @@ metadata:
   namespace: default
 rules:
 - apiGroups:
-  - cloudfront.services.k8s.aws
+  - cloudfront.fork.services.k8s.aws
   resources:
   - cachepolicies
   - distributions

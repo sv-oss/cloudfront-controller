@@ -4,21 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: originrequestpolicies.cloudfront.services.k8s.aws
+  name: functions.cloudfront.fork.services.k8s.aws
 spec:
-  group: cloudfront.services.k8s.aws
+  group: cloudfront.fork.services.k8s.aws
   names:
-    kind: OriginRequestPolicy
-    listKind: OriginRequestPolicyList
-    plural: originrequestpolicies
-    singular: originrequestpolicy
+    kind: Function
+    listKind: FunctionList
+    plural: functions
+    singular: function
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OriginRequestPolicy is the Schema for the OriginRequestPolicies
-          API
+        description: Function is the Schema for the Functions API
         properties:
           apiVersion:
             description: |-
@@ -38,93 +37,38 @@ spec:
           metadata:
             type: object
           spec:
-            description: |-
-              OriginRequestPolicySpec defines the desired state of OriginRequestPolicy.
-
-              An origin request policy.
-
-              When it's attached to a cache behavior, the origin request policy determines
-              the values that CloudFront includes in requests that it sends to the origin.
-              Each request that CloudFront sends to the origin includes the following:
-
-                - The request body and the URL path (without the domain name) from the
-                  viewer request.
-
-                - The headers that CloudFront automatically includes in every origin request,
-                  including Host, User-Agent, and X-Amz-Cf-Id.
-
-                - All HTTP headers, cookies, and URL query strings that are specified
-                  in the cache policy or the origin request policy. These can include items
-                  from the viewer request and, in the case of headers, additional ones that
-                  are added by CloudFront.
-
-              CloudFront sends a request when it can't find an object in its cache that
-              matches the request. If you want to send values to the origin and also include
-              them in the cache key, use CachePolicy.
+            description: FunctionSpec defines the desired state of Function.
             properties:
-              originRequestPolicyConfig:
-                description: An origin request policy configuration.
+              functionCode:
+                description: |-
+                  The function code. For more information about writing a CloudFront function,
+                  see Writing function code for CloudFront Functions (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/writing-function-code.html)
+                  in the Amazon CloudFront Developer Guide.
+                format: byte
+                type: string
+              functionConfig:
+                description: |-
+                  Configuration information about the function, including an optional comment
+                  and the function's runtime.
                 properties:
                   comment:
                     type: string
-                  cookiesConfig:
-                    description: |-
-                      An object that determines whether any cookies in viewer requests (and if
-                      so, which cookies) are included in requests that CloudFront sends to the
-                      origin.
-                    properties:
-                      cookieBehavior:
-                        type: string
-                      cookies:
-                        description: Contains a list of cookie names.
-                        properties:
-                          items:
-                            items:
-                              type: string
-                            type: array
-                        type: object
-                    type: object
-                  headersConfig:
-                    description: |-
-                      An object that determines whether any HTTP headers (and if so, which headers)
-                      are included in requests that CloudFront sends to the origin.
-                    properties:
-                      headerBehavior:
-                        type: string
-                      headers:
-                        description: Contains a list of HTTP header names.
-                        properties:
-                          items:
-                            items:
-                              type: string
-                            type: array
-                        type: object
-                    type: object
-                  name:
+                  runtime:
                     type: string
-                  queryStringsConfig:
-                    description: |-
-                      An object that determines whether any URL query strings in viewer requests
-                      (and if so, which query strings) are included in requests that CloudFront
-                      sends to the origin.
-                    properties:
-                      queryStringBehavior:
-                        type: string
-                      queryStrings:
-                        description: Contains a list of query string names.
-                        properties:
-                          items:
-                            items:
-                              type: string
-                            type: array
-                        type: object
-                    type: object
                 type: object
+              name:
+                description: |-
+                  A name to identify the function.
+
+                  Regex Pattern: `^[a-zA-Z0-9-_]{1,64}$`
+                type: string
             required:
-            - originRequestPolicyConfig
+            - functionCode
+            - functionConfig
+            - name
             type: object
           status:
-            description: OriginRequestPolicyStatus defines the observed state of OriginRequestPolicy
+            description: FunctionStatus defines the observed state of Function
             properties:
               ackResourceMetadata:
                 description: |-
@@ -191,16 +135,45 @@ spec:
                   type: object
                 type: array
               eTag:
+                description: The version identifier for the current version of the
+                  CloudFront function.
                 type: string
-              id:
-                description: The unique identifier for the origin request policy.
-                type: string
-              lastModifiedTime:
-                description: The date and time when the origin request policy was
-                  last modified.
-                format: date-time
-                type: string
+              functionSummary:
+                description: Contains configuration information and metadata about
+                  a CloudFront function.
+                properties:
+                  functionConfig:
+                    description: Contains configuration information about a CloudFront
+                      function.
+                    properties:
+                      comment:
+                        type: string
+                      runtime:
+                        type: string
+                    type: object
+                  functionMetadata:
+                    description: Contains metadata about a CloudFront function.
+                    properties:
+                      createdTime:
+                        format: date-time
+                        type: string
+                      functionARN:
+                        type: string
+                      lastModifiedTime:
+                        format: date-time
+                        type: string
+                      stage:
+                        type: string
+                    type: object
+                  name:
+                    type: string
+                  status:
+                    type: string
+                type: object
               location:
+                description: |-
+                  The URL of the CloudFront function. Use the URL to manage the function with
+                  the CloudFront API.
                 type: string
             type: object
         type: object

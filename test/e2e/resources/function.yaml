@@ -1,4 +1,4 @@
-apiVersion: cloudfront.services.k8s.aws/v1alpha1
+apiVersion: cloudfront.fork.services.k8s.aws/v1alpha1
 kind: Function
 metadata:
   name: $FUNCTION_NAME

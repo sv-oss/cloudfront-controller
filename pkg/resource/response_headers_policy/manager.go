@@ -47,8 +47,8 @@ var (
 	_ = svcapitypes.ResponseHeadersPolicy{}
 )
 
-// +kubebuilder:rbac:groups=cloudfront.services.k8s.aws,resources=responseheaderspolicies,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=cloudfront.services.k8s.aws,resources=responseheaderspolicies/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cloudfront.fork.services.k8s.aws,resources=responseheaderspolicies,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cloudfront.fork.services.k8s.aws,resources=responseheaderspolicies/status,verbs=get;update;patch
 
 var lateInitializeFieldNames = []string{}
 

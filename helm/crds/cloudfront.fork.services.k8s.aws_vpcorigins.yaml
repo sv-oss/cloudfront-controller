@@ -4,21 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: originaccesscontrols.cloudfront.services.k8s.aws
+  name: vpcorigins.cloudfront.fork.services.k8s.aws
 spec:
-  group: cloudfront.services.k8s.aws
+  group: cloudfront.fork.services.k8s.aws
   names:
-    kind: OriginAccessControl
-    listKind: OriginAccessControlList
-    plural: originaccesscontrols
-    singular: originaccesscontrol
+    kind: VPCOrigin
+    listKind: VPCOriginList
+    plural: vpcorigins
+    singular: vpcorigin
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: OriginAccessControl is the Schema for the OriginAccessControls
-          API
+        description: VPCOrigin is the Schema for the VPCOrigins API
         properties:
           apiVersion:
             description: |-
@@ -39,29 +38,57 @@ spec:
             type: object
           spec:
             description: |-
-              OriginAccessControlSpec defines the desired state of OriginAccessControl.
+              VpcOriginSpec defines the desired state of VpcOrigin.
 
-              A CloudFront origin access control, including its unique identifier.
+              An Amazon CloudFront VPC origin.
             properties:
-              originAccessControlConfig:
-                description: Contains the origin access control.
+              tags:
+                description: A complex type that contains Tag elements.
+                items:
+                  description: A complex type that contains Tag key and Tag value.
+                  properties:
+                    key:
+                      description: |-
+                        A string that contains Tag key.
+
+                        The string length should be between 1 and 128 characters. Valid characters
+                        include a-z, A-Z, 0-9, space, and the special characters _ - . : / = + @.
+                      type: string
+                    value:
+                      type: string
+                  type: object
+                type: array
+              vpcOriginEndpointConfig:
+                description: The VPC origin endpoint configuration.
                 properties:
-                  description:
+                  arn:
                     type: string
+                  httpPort:
+                    format: int64
+                    type: integer
+                  httpsPort:
+                    format: int64
+                    type: integer
                   name:
                     type: string
-                  originAccessControlOriginType:
+                  originProtocolPolicy:
                     type: string
-                  signingBehavior:
-                    type: string
-                  signingProtocol:
-                    type: string
+                  originSSLProtocols:
+                    description: |-
+                      A complex type that contains information about the SSL/TLS protocols that
+                      CloudFront can use when establishing an HTTPS connection with your origin.
+                    properties:
+                      items:
+                        items:
+                          type: string
+                        type: array
+                    type: object
                 type: object
             required:
-            - originAccessControlConfig
+            - vpcOriginEndpointConfig
             type: object
           status:
-            description: OriginAccessControlStatus defines the observed state of OriginAccessControl
+            description: VPCOriginStatus defines the observed state of VPCOrigin
             properties:
               ackResourceMetadata:
                 description: |-
@@ -127,12 +154,21 @@ spec:
                   - type
                   type: object
                 type: array
+              createdTime:
+                description: The VPC origin created time.
+                format: date-time
+                type: string
               eTag:
                 type: string
               id:
-                description: The unique identifier of the origin access control.
+                description: The VPC origin ID.
                 type: string
-              location:
+              lastModifiedTime:
+                description: The VPC origin last modified time.
+                format: date-time
+                type: string
+              status:
+                description: The VPC origin status.
                 type: string
             type: object
         type: object

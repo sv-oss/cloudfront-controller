@@ -28,13 +28,13 @@ import (
 )
 
 const (
-	FinalizerString = "finalizers.cloudfront.services.k8s.aws/CachePolicy"
+	FinalizerString = "finalizers.cloudfront.fork.services.k8s.aws/CachePolicy"
 )
 
 var (
 	GroupVersionResource = svcapitypes.GroupVersion.WithResource("cachepolicies")
 	GroupKind            = metav1.GroupKind{
-		Group: "cloudfront.services.k8s.aws",
+		Group: "cloudfront.fork.services.k8s.aws",
 		Kind:  "CachePolicy",
 	}
 )

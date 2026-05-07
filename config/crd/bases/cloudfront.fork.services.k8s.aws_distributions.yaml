@@ -4,9 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: distributions.cloudfront.services.k8s.aws
+  name: distributions.cloudfront.fork.services.k8s.aws
 spec:
-  group: cloudfront.services.k8s.aws
+  group: cloudfront.fork.services.k8s.aws
   names:
     kind: Distribution
     listKind: DistributionList

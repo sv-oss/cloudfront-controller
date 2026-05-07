@@ -78,7 +78,7 @@ rules:
   - get
   - list
 - apiGroups:
-  - cloudfront.services.k8s.aws
+  - cloudfront.fork.services.k8s.aws
   resources:
   - cachepolicies
   - distributions
@@ -96,7 +96,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cloudfront.services.k8s.aws
+  - cloudfront.fork.services.k8s.aws
   resources:
   - cachepolicies/status
   - distributions/status

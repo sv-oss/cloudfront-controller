@@ -47,8 +47,8 @@ var (
 	_ = svcapitypes.Function{}
 )
 
-// +kubebuilder:rbac:groups=cloudfront.services.k8s.aws,resources=functions,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=cloudfront.services.k8s.aws,resources=functions/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cloudfront.fork.services.k8s.aws,resources=functions,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cloudfront.fork.services.k8s.aws,resources=functions/status,verbs=get;update;patch
 
 var lateInitializeFieldNames = []string{}
 

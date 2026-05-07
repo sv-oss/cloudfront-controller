@@ -28,13 +28,13 @@ import (
 )
 
 const (
-	FinalizerString = "finalizers.cloudfront.services.k8s.aws/OriginAccessControl"
+	FinalizerString = "finalizers.cloudfront.fork.services.k8s.aws/OriginAccessControl"
 )
 
 var (
 	GroupVersionResource = svcapitypes.GroupVersion.WithResource("originaccesscontrols")
 	GroupKind            = metav1.GroupKind{
-		Group: "cloudfront.services.k8s.aws",
+		Group: "cloudfront.fork.services.k8s.aws",
 		Kind:  "OriginAccessControl",
 	}
 )

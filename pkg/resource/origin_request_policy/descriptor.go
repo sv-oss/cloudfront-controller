@@ -28,13 +28,13 @@ import (
 )
 
 const (
-	FinalizerString = "finalizers.cloudfront.services.k8s.aws/OriginRequestPolicy"
+	FinalizerString = "finalizers.cloudfront.fork.services.k8s.aws/OriginRequestPolicy"
 )
 
 var (
 	GroupVersionResource = svcapitypes.GroupVersion.WithResource("originrequestpolicies")
 	GroupKind            = metav1.GroupKind{
-		Group: "cloudfront.services.k8s.aws",
+		Group: "cloudfront.fork.services.k8s.aws",
 		Kind:  "OriginRequestPolicy",
 	}
 )

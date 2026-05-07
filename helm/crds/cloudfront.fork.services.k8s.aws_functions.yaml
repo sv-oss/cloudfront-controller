@@ -4,20 +4,20 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.19.0
-  name: vpcorigins.cloudfront.services.k8s.aws
+  name: functions.cloudfront.fork.services.k8s.aws
 spec:
-  group: cloudfront.services.k8s.aws
+  group: cloudfront.fork.services.k8s.aws
   names:
-    kind: VPCOrigin
-    listKind: VPCOriginList
-    plural: vpcorigins
-    singular: vpcorigin
+    kind: Function
+    listKind: FunctionList
+    plural: functions
+    singular: function
   scope: Namespaced
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: VPCOrigin is the Schema for the VPCOrigins API
+        description: Function is the Schema for the Functions API
         properties:
           apiVersion:
             description: |-
@@ -37,63 +37,39 @@ spec:
           metadata:
             type: object
           spec:
-            description: |-
-              VpcOriginSpec defines the desired state of VpcOrigin.
-
-              An Amazon CloudFront VPC origin.
+            description: FunctionSpec defines the desired state of Function.
             properties:
-              tags:
-                description: A complex type that contains Tag elements.
-                items:
-                  description: A complex type that contains Tag key and Tag value.
-                  properties:
-                    key:
-                      description: |-
-                        A string that contains Tag key.
-
-                        The string length should be between 1 and 128 characters. Valid characters
-                        include a-z, A-Z, 0-9, space, and the special characters _ - . : / = + @.
-                      type: string
-                    value:
-                      type: string
-                  type: object
-                type: array
-              vpcOriginEndpointConfig:
-                description: The VPC origin endpoint configuration.
+              functionCode:
+                description: |-
+                  The function code. For more information about writing a CloudFront function,
+                  see Writing function code for CloudFront Functions (https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/writing-function-code.html)
+                  in the Amazon CloudFront Developer Guide.
+                format: byte
+                type: string
+              functionConfig:
+                description: |-
+                  Configuration information about the function, including an optional comment
+                  and the function's runtime.
                 properties:
-                  arn:
+                  comment:
                     type: string
-                  httpPort:
-                    format: int64
-                    type: integer
-                  httpsPort:
-                    format: int64
-                    type: integer
-                  name:
+                  runtime:
                     type: string
-                  originProtocolPolicy:
-                    type: string
-                  originSSLProtocols:
-                    description: |-
-                      A complex type that contains information about the SSL/TLS protocols that
-                      CloudFront can use when establishing an HTTPS connection with your origin.
-                    properties:
-                      items:
-                        items:
-                          type: string
-                        type: array
-                    type: object
                 type: object
+              name:
+                description: |-
+                  A name to identify the function.
+
+                  Regex Pattern: `^[a-zA-Z0-9-_]{1,64}$`
+                type: string
             required:
-            - vpcOriginEndpointConfig
+            - functionCode
+            - functionConfig
+            - name
             type: object
           status:
-            description: VPCOriginStatus defines the observed state of VPCOrigin
+            description: FunctionStatus defines the observed state of Function
             properties:
-              accountID:
-                description: The account ID of the Amazon Web Services account that
-                  owns the VPC origin.
-                type: string
               ackResourceMetadata:
                 description: |-
                   All CRs managed by ACK have a common `Status.ACKResourceMetadata` member
@@ -158,21 +134,46 @@ spec:
                   - type
                   type: object
                 type: array
-              createdTime:
-                description: The VPC origin created time.
-                format: date-time
-                type: string
               eTag:
+                description: The version identifier for the current version of the
+                  CloudFront function.
                 type: string
-              id:
-                description: The VPC origin ID.
-                type: string
-              lastModifiedTime:
-                description: The VPC origin last modified time.
-                format: date-time
-                type: string
-              status:
-                description: The VPC origin status.
+              functionSummary:
+                description: Contains configuration information and metadata about
+                  a CloudFront function.
+                properties:
+                  functionConfig:
+                    description: Contains configuration information about a CloudFront
+                      function.
+                    properties:
+                      comment:
+                        type: string
+                      runtime:
+                        type: string
+                    type: object
+                  functionMetadata:
+                    description: Contains metadata about a CloudFront function.
+                    properties:
+                      createdTime:
+                        format: date-time
+                        type: string
+                      functionARN:
+                        type: string
+                      lastModifiedTime:
+                        format: date-time
+                        type: string
+                      stage:
+                        type: string
+                    type: object
+                  name:
+                    type: string
+                  status:
+                    type: string
+                type: object
+              location:
+                description: |-
+                  The URL of the CloudFront function. Use the URL to manage the function with
+                  the CloudFront API.
                 type: string
             type: object
         type: object

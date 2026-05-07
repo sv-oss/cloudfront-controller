@@ -14,7 +14,7 @@ metadata:
     helm.sh/chart: {{ include "ack-cloudfront-controller.chart.name-version" . }}
 rules:
 - apiGroups:
-  - cloudfront.services.k8s.aws
+  - cloudfront.fork.services.k8s.aws
   resources:
   - cachepolicies
   - distributions
@@ -32,7 +32,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - cloudfront.services.k8s.aws
+  - cloudfront.fork.services.k8s.aws
   resources:
   - cachepolicies
   - distributions

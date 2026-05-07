@@ -52,7 +52,7 @@ import (
 )
 
 var (
-	awsServiceAPIGroup = "cloudfront.services.k8s.aws"
+	awsServiceAPIGroup = "cloudfront.fork.services.k8s.aws"
 	awsServiceAlias    = "cloudfront"
 	scheme             = runtime.NewScheme()
 	setupLog           = ctrlrt.Log.WithName("setup")
