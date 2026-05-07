@@ -30,7 +30,12 @@ find . \( -name "*.go" -o -name "*.yaml" -o -name "*.yml" -o -name "*.tpl" \) \
 
 echo "  [done] String replacement in source files"
 
-# Step 2: Rename CRD files under helm/crds/ and config/crd/bases/
+# Step 2: Regenerate CRDs from Go types (picks up fork group + any new fields)
+controller-gen crd:allowDangerousTypes=true paths="./apis/..." output:crd:artifacts:config=config/crd/bases
+
+echo "  [done] CRDs regenerated from Go types"
+
+# Step 3: Rename CRD files under helm/crds/ and config/crd/bases/
 for dir in helm/crds config/crd/bases; do
   if [[ -d "$dir" ]]; then
     for f in "$dir"/${OLD_GROUP}_*.yaml; do
@@ -45,7 +50,13 @@ done
 
 echo "  [done] CRD file renames"
 
-# Step 3: Update kustomization.yaml references to renamed CRD files
+# Step 4: Sync CRDs from config/crd/bases to helm/crds
+rm -f helm/crds/${NEW_GROUP}_*.yaml
+cp config/crd/bases/${NEW_GROUP}_*.yaml helm/crds/
+
+echo "  [done] Helm CRDs synced"
+
+# Step 5: Update kustomization.yaml references to renamed CRD files
 KUSTOMIZE_FILE="config/crd/kustomization.yaml"
 if [[ -f "$KUSTOMIZE_FILE" ]]; then
   sed -i '' "s|${OLD_GROUP}|${NEW_GROUP}|g" "$KUSTOMIZE_FILE"
@@ -53,7 +64,7 @@ fi
 
 echo "  [done] Kustomization references"
 
-# Step 4: Patch Helm chart name to avoid collision with official chart
+# Step 6: Patch Helm chart name to avoid collision with official chart
 CHART_FILE="helm/Chart.yaml"
 if [[ -f "$CHART_FILE" ]]; then
   sed -i '' 's/^name: cloudfront-chart$/name: cloudfront-fork-chart/' "$CHART_FILE"
