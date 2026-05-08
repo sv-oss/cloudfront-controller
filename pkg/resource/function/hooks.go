@@ -15,12 +15,29 @@ package function
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/aws-controllers-k8s/cloudfront-controller/apis/v1alpha1"
+	ackcompare "github.com/aws-controllers-k8s/runtime/pkg/compare"
 	ackrtlog "github.com/aws-controllers-k8s/runtime/pkg/runtime/log"
 	svcsdk "github.com/aws/aws-sdk-go-v2/service/cloudfront"
 	svcsdktypes "github.com/aws/aws-sdk-go-v2/service/cloudfront/types"
 )
+
+func customPreCompare(delta *ackcompare.Delta, a, b *resource) {
+	if a.ko != nil && functionAutoPublishEnabled(a.ko) &&
+		// only trigger an update if autoPublish is enabled and we currently
+		// haven't published.
+		b.ko != nil && isUnpublished(b.ko) {
+		delta.Add("Spec.PublishFunction", nil, nil)
+	}
+}
+
+func isUnpublished(f *v1alpha1.Function) bool {
+	return f.Status.FunctionSummary != nil &&
+		f.Status.FunctionSummary.Status != nil &&
+		*f.Status.FunctionSummary.Status == "UNPUBLISHED"
+}
 
 // setResourceAdditionalFields sets any additional fields that are not returned
 // by the Describe API operation.
@@ -56,4 +73,41 @@ func (rm *resourceManager) setFunctionCode(ctx context.Context, r *v1alpha1.Func
 	}
 	r.Spec.FunctionCode = []byte(output.FunctionCode)
 	return nil
+}
+
+// publishes a CloudFront function
+func (rm *resourceManager) publishFunction(ctx context.Context, r *v1alpha1.Function) (err error) {
+	rlog := ackrtlog.FromContext(ctx)
+	exit := rlog.Trace("rm.publishFunction")
+	defer func() { exit(err) }()
+
+	_, err = rm.sdkapi.PublishFunction(
+		ctx,
+		&svcsdk.PublishFunctionInput{
+			Name:    r.Spec.Name,
+			IfMatch: r.Status.ETag,
+		},
+	)
+	rm.metrics.RecordAPICall("POST", "PublishFunction", err)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// functionAutoPublishEnabled returns true if the function should be
+// automatically published after a successful update or create operation.
+func functionAutoPublishEnabled(f *v1alpha1.Function) bool {
+	annotations := f.ObjectMeta.GetAnnotations()
+	if annotations == nil {
+		return false
+	}
+
+	autoPublish, ok := annotations[v1alpha1.AutoPublishAnnotation]
+	if ok {
+		return autoPublish == strconv.FormatBool(true)
+	}
+
+	// By default we do not auto-publish functions.
+	return false
 }
